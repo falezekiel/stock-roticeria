@@ -1,0 +1,446 @@
+<!--Tablero-->
+<section id="tablero">
+  <br />
+  <!--Listado Clientes-->
+  <div class="container" style="overflow: auto; height: 50vh">
+    <div class="row">
+      <div class="col-md-9">
+        <div class="card">
+          <div class="card-header container-fluid">
+            <div class="d-flex justify-content-between">
+              <h4 class="card-title">Listado de Pedidos</h4>
+              <!-- <button
+              type="button"
+              class="btn btn-secondary pull-right btn-sm"
+              style="display: inline"
+              (click)="mostrarAllMenuCompras()"
+            >
+              <i class="fas fa-plus-square" style="color: white"></i>
+              Mostrar Compras
+            </button> -->
+              <button
+                type="button"
+                id="modalFormButton"
+                class="btn btn-dark pull-right btn-sm"
+                data-bs-toggle="modal"
+                data-bs-target="#agregarBoletaModal"
+                style="display: inline"
+                (click)="activateAddBoleta()"
+              >
+                <i class="fas fa-plus-square" style="color: grey"></i>
+                Agregar Pedido
+              </button>
+            </div>
+          </div>
+
+          <table class="table table-striped">
+            <thead class="thead-dark">
+              <tr style="background-color: rgb(0, 0, 0); color: white">
+                <th>ID<br />Boleta</th>
+                <th>Fecha<br />Creacion</th>
+                <th>Pedido</th>
+                <th>Domicilio</th>
+                <th>Teléfono</th>
+                <th>Total</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tr *ngIf="cargaTablero" >
+              <td>
+                <div class="spinner-border" role="status" style="vertical-align:middle">
+                  <span class="sr-only">Loading...</span>
+                </div>
+              </td>
+              <td>
+                <div class="spinner-border" role="status" style="vertical-align:middle">
+                  <span class="sr-only">Loading...</span>
+                </div>
+              </td>
+              <td>
+                <div class="spinner-border" role="status" style="vertical-align:middle">
+                  <span class="sr-only">Loading...</span>
+                </div>
+              </td>
+              <td>
+                <div class="spinner-border" role="status" style="vertical-align:middle">
+                  <span class="sr-only">Loading...</span>
+                </div>
+              </td>
+              <td>
+                <div class="spinner-border" role="status" style="vertical-align:middle">
+                  <span class="sr-only">Loading...</span>
+                </div>
+              </td>
+              <td>
+                <div class="spinner-border" role="status" style="vertical-align:middle">
+                  <span class="sr-only">Loading...</span>
+                </div>
+              </td>
+            </tr>
+            <tbody *ngFor="let boletaElemento of boletas; let i = index">
+              <tr>
+                <td>
+                  <small>{{ boletaElemento.id }}</small>
+                </td>
+                <td>{{ timestampToDate(boletaElemento.fechaCreacion) }}</td>
+                <td>{{ boletaElemento.pedido }}</td>
+                <td>{{ boletaElemento.domicilio }}</td>
+                <td>{{boletaElemento.telefono}}</td>
+                <td>
+                  {{
+                    getTotalBoleta(boletaElemento) | currency: "CL":"$":"3.0"
+                  }}
+                </td>
+                <td>
+                  <button
+                    type="button"
+                    id="modaldeleteButton"
+                    class="btn btn-primary pull-right btn-sm"
+                    data-bs-toggle="modal"
+                    data-bs-target="#eliminarBoletaModal"
+                    style="padding: 5px 5px; border: none; background: none"
+                    (click)="addBoletaClass(boletaElemento)"
+                  >
+                    <i class="fas fa-trash-alt" style="color: red"></i>
+                  </button>
+
+                  <button
+                    type="button"
+                    id="modalComprasButton"
+                    class="btn btn-primary pull-right btn-sm"
+                    data-bs-toggle="modal"
+                    data-bs-target="#agregarCompraModal"
+                    style="padding: 5px 5px; border: none; background: none"
+                    (click)="addBoletaClass(boletaElemento)"
+                  >
+                    <i class="fas fa-plus-circle" style="color: green"></i>
+                  </button>
+
+                  <button
+                    style="padding: 5px 5px; border: none; background: none"
+                    (click)="activateMenuCompras(boletaElemento)"
+                  >
+                    <i
+                      class="fas fa-times-circle"
+                      style="color: black"
+                      *ngIf="boletaElemento.mostrarCompras"
+                    ></i>
+                    <i
+                      class="fas fa-arrow-circle-down"
+                      *ngIf="!boletaElemento.mostrarCompras"
+                    ></i>
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="boletaElemento.mostrarCompras">
+                <td colspan="6">
+                  <app-compras
+                    [comprasCliente]="boletaElemento.compras"
+                    [indice]="i"
+                    [idBoleta]="boletaElemento.id"
+                  ></app-compras>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!--Tarjetas laterales-->
+      <div class="col-md-3">
+        <div class="card text-center bg-dark text-white mb-3">
+          <div class="card-body">
+            <h3 id="btn-ganancias" >Ganancias <i class="fas fa-money-bill-wave"></i></h3>
+            <h4 id="ganancias" class="display-8">
+              {{ getGananciasTotal() | currency: "CL":"$":"3.0" }}
+            </h4>
+          </div>
+        </div>
+
+        <div class="card text-center bg-dark text-white mb-3">
+          <div class="card-body">
+            <h3 id="btn-total" >Nº pedidos</h3>
+            <h4 id="total" class="display-8">
+               {{ boletas?.length }}
+            </h4>
+          </div>
+        </div>
+      </div>
+      <!--Fin tarjetas laterales-->
+    </div>
+  </div>
+</section>
+
+<!--Agregar boleta modal-->
+<div class="modal fade" id="agregarBoletaModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title">Agregar Pedido</h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+          #botonCerrar
+        ></button>
+      </div>
+
+      <flash-messages></flash-messages>
+
+      <form
+        #boletaForm="ngForm"
+        (ngSubmit)="agregarBoleta(boletaForm)"
+        *ngIf="mostrarForm"
+      >
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="nombre">Nombre</label>
+            <input
+              type="text"
+              name="nombre"
+              class="form-control"
+              #nombre="ngModel"
+              [(ngModel)]="boleta.nombre"
+              [ngClass]="{ 'is-invalid': nombre.errors && nombre.touched }"
+              required
+              minlength="2"
+            />
+            <div [hidden]="!nombre.errors?.required" class="invalid-feedback">
+              Nombre requerido
+            </div>
+            <div [hidden]="!nombre.errors?.minlength" class="invalid-feedback">
+              Debe contener al menos 2 caracteres
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="apellido">Apellido</label>
+            <input
+              type="text"
+              name="apellido"
+              class="form-control"
+              #apellido="ngModel"
+              [(ngModel)]="boleta.apellido"
+              [ngClass]="{ 'is-invalid': apellido.errors && apellido.touched }"
+              required
+              minlength="2"
+            />
+            <div [hidden]="!apellido.errors?.required" class="invalid-feedback">
+              Apellido requerido
+            </div>
+            <div
+              [hidden]="!apellido.errors?.minlength"
+              class="invalid-feedback"
+            >
+              Debe contener al menos 2 caracteres
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="domicilio">Domicilio</label>
+            <input
+              type="text"
+              name="domicilio"
+              class="form-control"
+              #domicilio="ngModel"
+              [(ngModel)]="boleta.domicilio"
+              [ngClass]="{ 'is-invalid': domicilio.errors && domicilio.touched }"
+              required
+            />
+            <div [hidden]="!domicilio.errors?.required" class="invalid-feedback">
+              El domicilio requerido
+            </div>
+            <div [hidden]="!domicilio.errors?.pattern" class="invalid-feedback">
+              El domicilio no es válido
+            </div>
+          </div>
+
+          
+          <div class="form-group">
+            <label for="div">Teléfono</label>
+            <input
+              type="number"
+              name="telefono"
+              class="form-control"
+              #telefono="ngModel"
+              [(ngModel)]="boleta.telefono"
+              [ngClass]="{ 'is-invalid': telefono.errors && telefono.touched }"
+              required
+            />
+            <div [hidden]="!telefono.errors?.required" class="invalid-feedback">
+              Numero de teléfono requerido
+            </div>
+            <div [hidden]="!telefono.errors?.pattern" class="invalid-feedback">
+              El numero de teléfono no existe
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="div">N° Pedido</label>
+            <input
+              type="number"
+              name="pedido"
+              class="form-control"
+              #pedido="ngModel"
+              pattern="(40|([0-3]?[0-9]?))?"
+              [(ngModel)]="boleta.pedido"
+              [ngClass]="{ 'is-invalid': pedido.errors && pedido.touched }"
+              required
+            />
+            <div [hidden]="!pedido.errors?.required" class="invalid-feedback">
+              Numero de pedido requerido
+            </div>
+            <div [hidden]="!pedido.errors?.pattern" class="invalid-feedback">
+              El numero de pedido no existe
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button
+            type="submit"
+            [disabled]="!boletaForm.valid"
+            class="btn btn-primary"
+          >
+            Guardar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Eliminar boleta modal -->
+<div
+  class="modal cstm-model"
+  id="eliminarBoletaModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="myModalLabel"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Confirmar Eliminar</h4>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        ¿Estas seguro que quieres eliminar esta boleta?
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-danger btn-sm btn-ok"
+          id="actionEliminarBoleta"
+          data-toggle="modal"
+          data-target="#confirmarEliminarBoletaModel"
+          (click)="eliminarBoleta()"
+        >
+          Si, eliminar pedido
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-primary"
+          aria-label="Close"
+          #botonEliminarBoleta
+          data-bs-dismiss="modal"
+          (click)="cerrarModalEliminarBoleta()"
+        >
+          No
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Agregar Compra modal-->
+<div class="modal fade" id="agregarCompraModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title">Agregar Compra</h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+          #botonAddCompra
+        ></button>
+      </div>
+
+      <form
+        #CompraForm="ngForm"
+        (ngSubmit)="agregarCompra(CompraForm)"
+        *ngIf="true"
+      >
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="producto">Producto</label>
+            <select
+              id="producto"
+              name="producto"
+              style="display: block"
+              [(ngModel)]="compra.producto"
+              #producto="ngModel"
+              [ngClass]="{
+                'is-invalid': producto.errors && producto.touched
+              }"
+              required
+            >
+            <option value="Bebida">Bebida</option>
+            <option value="Comida">Pizza </option>
+            <option value="Comida">Lomo</option>
+            <option value="Comida">Empanada</option>
+            <option value="Envio">Envio</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="cantidad">Cantidad</label>
+            <input
+              type="number"
+              name="cantidad"
+              class="form-control"
+              #cantidad="ngModel"
+              [(ngModel)]="compra.cantidad"
+              [ngClass]="{ 'is-invalid': cantidad.errors && cantidad.touched }"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="valorUnidad">Precio Unidad</label>
+            <input
+              type="number"
+              name="valorUnidad"
+              class="form-control"
+              #valorUnidad="ngModel"
+              [(ngModel)]="compra.valorUnidad"
+              [ngClass]="{
+                'is-invalid': valorUnidad.errors && valorUnidad.touched
+              }"
+              required
+            />
+          </div>
+
+          <div class="modal-footer">
+            <button
+              id="guardar"
+              type="submit"
+              [disabled]="!CompraForm.valid"
+              class="btn btn-dark"
+            >
+              Guardar
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
