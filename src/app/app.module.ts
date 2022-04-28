@@ -26,6 +26,7 @@ import { ConfiguracionServicio } from './servicios/configuracion.service';
 import { ConfiguracionGuard } from './guardianes/configuracion.guard';
 import { ComprasComponent } from './componentes/compras/compras.component';
 
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -38,6 +39,7 @@ import { ComprasComponent } from './componentes/compras/compras.component';
     NoEncontradoComponent,
     PiePaginaComponent,
     ComprasComponent,
+    
   ],
   imports: [
     BrowserModule,
